@@ -1,6 +1,7 @@
 """Tools the model can ask AgentHub to run."""
 
-from langchain_core.tools import tool
+from langchain_core.tools import StructuredTool, tool
+from pydantic import BaseModel, Field
 
 from data import ORDERS
 
@@ -47,7 +48,40 @@ def cancel_order(order_id: int) -> str:
     return f"Order {order_id} was cancelled."
 
 
-ALL_TOOLS = [add, multiply, get_order, get_order_status, cancel_order]
+class DiscountInput(BaseModel):
+    """Arguments the model must provide to calculate a discount."""
+
+    price: float = Field(description="The original price in euros")
+    percent: float = Field(
+        ge=0,
+        le=100,
+        description="The discount percentage, for example 20 for 20 percent",
+    )
+
+
+def calculate_discount(price: float, percent: float) -> float:
+    """Return the price after subtracting the discount percentage."""
+    discount = price * percent / 100
+    return round(price - discount, 2)
+
+
+# Same result as @tool, but the pieces are passed explicitly
+calculate_discount_tool = StructuredTool.from_function(
+    func=calculate_discount,
+    name="calculate_discount",
+    description="Calculate the final price after applying a percentage discount.",
+    args_schema=DiscountInput,
+)
+
+
+ALL_TOOLS = [
+    add,
+    multiply,
+    calculate_discount_tool,
+    get_order,
+    get_order_status,
+    cancel_order,
+]
 
 # Lets us find the right tool when the model asks for one by name
 TOOLS_BY_NAME = {single_tool.name: single_tool for single_tool in ALL_TOOLS}

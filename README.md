@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 7: tools (`@tool`), fake order data, and `bind_tools`.
+Step 8: `StructuredTool.from_function` with a Pydantic `args_schema`.
 
 ## Setup
 
@@ -42,8 +42,9 @@ You: Please cancel order 105.
 AgentHub (PydanticOutputParser): OrderRequest(action='cancel', order_id=105)
 add.invoke -> 13
 get_order.invoke -> Order 105: status=Processing, user_id=user-1
-You: What is 6 multiplied by 7?
-Model requested: [{'name': 'multiply', 'args': {'a': 6, 'b': 7}, 'id': '...', 'type': 'tool_call'}]
+calculate_discount.invoke -> 80.0
+You: Calculate a 20 percent discount for 100 euros.
+Model requested: [{'name': 'calculate_discount', 'args': {'price': 100, 'percent': 20}, 'id': '...', 'type': 'tool_call'}]
 Model text: ''
-AgentHub executed multiply -> 42
+AgentHub executed calculate_discount -> 80.0
 ```
