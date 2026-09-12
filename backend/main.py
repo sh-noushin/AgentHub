@@ -11,7 +11,14 @@ from prompts import (
     question_prompt,
     str_parser,
 )
-from tools import ALL_TOOLS, TOOLS_BY_NAME, add, calculate_discount_tool, get_order
+from tools import (
+    ALL_TOOLS,
+    TOOLS_BY_NAME,
+    MathToolkit,
+    add,
+    calculate_discount_tool,
+    get_order,
+)
 
 
 def ask_with_history(
@@ -114,6 +121,20 @@ def demo_tools(model: BaseChatModel) -> None:
         print(f"AgentHub executed {tool_call['name']} -> {result}")
 
 
+def demo_toolkit(model: BaseChatModel) -> None:
+    """Bind only the math tools, so the model cannot touch orders."""
+    math_tools = MathToolkit().get_tools()
+    print(f"MathToolkit tools: {[t.name for t in math_tools]}")
+
+    math_model = model.bind_tools(math_tools)
+    question = "Show order 105."
+    message = math_model.invoke(question)
+
+    print(f"You: {question}")
+    print(f"Model requested: {message.tool_calls}")
+    print(f"Model text: {message.content!r}")
+
+
 def main() -> None:
     """Start AgentHub and run the current demos."""
     print("AgentHub started.")
@@ -123,6 +144,7 @@ def main() -> None:
     demo_structured_output(model)
     demo_parsers(model)
     demo_tools(model)
+    demo_toolkit(model)
 
 
 # Only run main() when this file is executed directly

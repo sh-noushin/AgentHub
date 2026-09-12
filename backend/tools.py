@@ -1,6 +1,6 @@
 """Tools the model can ask AgentHub to run."""
 
-from langchain_core.tools import StructuredTool, tool
+from langchain_core.tools import BaseTool, BaseToolkit, StructuredTool, tool
 from pydantic import BaseModel, Field
 
 from data import ORDERS
@@ -74,14 +74,17 @@ calculate_discount_tool = StructuredTool.from_function(
 )
 
 
-ALL_TOOLS = [
-    add,
-    multiply,
-    calculate_discount_tool,
-    get_order,
-    get_order_status,
-    cancel_order,
-]
+class MathToolkit(BaseToolkit):
+    """Groups every tool that does arithmetic."""
+
+    def get_tools(self) -> list[BaseTool]:
+        """Return the tools the math agent is allowed to use."""
+        return [add, multiply, calculate_discount_tool]
+
+
+ORDER_TOOLS = [get_order, get_order_status, cancel_order]
+
+ALL_TOOLS = MathToolkit().get_tools() + ORDER_TOOLS
 
 # Lets us find the right tool when the model asks for one by name
 TOOLS_BY_NAME = {single_tool.name: single_tool for single_tool in ALL_TOOLS}

@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 8: `StructuredTool.from_function` with a Pydantic `args_schema`.
+Step 9: `MathToolkit` — grouping tools with `BaseToolkit` and `get_tools()`.
 
 ## Setup
 
@@ -47,4 +47,8 @@ You: Calculate a 20 percent discount for 100 euros.
 Model requested: [{'name': 'calculate_discount', 'args': {'price': 100, 'percent': 20}, 'id': '...', 'type': 'tool_call'}]
 Model text: ''
 AgentHub executed calculate_discount -> 80.0
+MathToolkit tools: ['add', 'multiply', 'calculate_discount']
+You: Show order 105.
+Model requested: []
+Model text: 'I can only help with calculations.'
 ```
