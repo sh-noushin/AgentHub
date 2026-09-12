@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 4: `MessagesPlaceholder` — conversation history inserted into the prompt.
+Step 5: Pydantic structured output — the model returns a typed object, not free text.
 
 ## Setup
 
@@ -30,4 +30,10 @@ You: My favourite order is order 105.
 AgentHub: Got it.
 You: Which order did I mention?
 AgentHub: Order 105.
+You: Please cancel order 105.
+AgentHub: action=cancel order_id=105
+You: What is the status of order 102?
+AgentHub: action=status order_id=102
+You: Do you sell umbrellas?
+AgentHub: action=other order_id=None
 ```
