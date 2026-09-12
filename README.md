@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 3: messages (`SystemMessage` / `HumanMessage` / `AIMessage`) and `ChatPromptTemplate`.
+Step 4: `MessagesPlaceholder` — conversation history inserted into the prompt.
 
 ## Setup
 
@@ -26,8 +26,8 @@ Expected output:
 
 ```
 AgentHub started.
-You: What is 6 multiplied by 7? Answer with the number only.
-AgentHub: 42
-You: What is the capital of France?
-AgentHub: Paris
+You: My favourite order is order 105.
+AgentHub: Got it.
+You: Which order did I mention?
+AgentHub: Order 105.
 ```

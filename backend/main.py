@@ -1,41 +1,42 @@
 """AgentHub entry point."""
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.language_models import BaseChatModel
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from models import build_model
-from prompts import SYSTEM_PROMPT, question_prompt
+from prompts import chat_prompt
 
 
-def ask_with_messages(question: str) -> AIMessage:
-    """Ask Gemini using a hand-written list of messages."""
-    model = build_model()
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=question),
-    ]
-    return model.invoke(messages)
-
-
-def ask_with_prompt_template(question: str) -> AIMessage:
-    """Ask Gemini using the reusable ChatPromptTemplate."""
-    model = build_model()
-    prompt_value = question_prompt.invoke({"question": question})
+def ask_with_history(
+    model: BaseChatModel,
+    question: str,
+    history: list[BaseMessage],
+) -> AIMessage:
+    """Ask Gemini a question together with the earlier turns."""
+    prompt_value = chat_prompt.invoke({"history": history, "question": question})
     return model.invoke(prompt_value)
 
 
 def main() -> None:
-    """Start AgentHub and compare both ways of building messages."""
+    """Start AgentHub and run a short two-turn conversation."""
     print("AgentHub started.")
 
-    first_question = "What is 6 multiplied by 7? Answer with the number only."
-    first_answer = ask_with_messages(first_question)
-    print(f"You: {first_question}")
-    print(f"AgentHub: {first_answer.content}")
+    model = build_model()
+    history: list[BaseMessage] = []
 
-    second_question = "What is the capital of France?"
-    second_answer = ask_with_prompt_template(second_question)
-    print(f"You: {second_question}")
-    print(f"AgentHub: {second_answer.content}")
+    questions = [
+        "My favourite order is order 105.",
+        "Which order did I mention?",
+    ]
+
+    for question in questions:
+        answer = ask_with_history(model, question, history)
+        print(f"You: {question}")
+        print(f"AgentHub: {answer.content}")
+
+        # Keep both turns so the next question can refer back to them
+        history.append(HumanMessage(content=question))
+        history.append(answer)
 
 
 # Only run main() when this file is executed directly

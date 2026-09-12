@@ -1,6 +1,6 @@
 """Prompt templates for AgentHub."""
 
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 SYSTEM_PROMPT = (
     "You are AgentHub, a helpful assistant for a small online store. "
@@ -11,6 +11,15 @@ SYSTEM_PROMPT = (
 question_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", SYSTEM_PROMPT),
+        ("human", "{question}"),
+    ]
+)
+
+# Same prompt, but earlier turns are inserted between the rules and the question
+chat_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", SYSTEM_PROMPT),
+        MessagesPlaceholder("history"),
         ("human", "{question}"),
     ]
 )
