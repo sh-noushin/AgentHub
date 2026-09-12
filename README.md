@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 6: `StrOutputParser` and `PydanticOutputParser`.
+Step 7: tools (`@tool`), fake order data, and `bind_tools`.
 
 ## Setup
 
@@ -40,4 +40,10 @@ You: What is the capital of France?
 AgentHub (StrOutputParser): Paris
 You: Please cancel order 105.
 AgentHub (PydanticOutputParser): OrderRequest(action='cancel', order_id=105)
+add.invoke -> 13
+get_order.invoke -> Order 105: status=Processing, user_id=user-1
+You: What is 6 multiplied by 7?
+Model requested: [{'name': 'multiply', 'args': {'a': 6, 'b': 7}, 'id': '...', 'type': 'tool_call'}]
+Model text: ''
+AgentHub executed multiply -> 42
 ```

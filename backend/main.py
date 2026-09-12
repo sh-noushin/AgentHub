@@ -11,6 +11,7 @@ from prompts import (
     question_prompt,
     str_parser,
 )
+from tools import ALL_TOOLS, TOOLS_BY_NAME, add, get_order
 
 
 def ask_with_history(
@@ -87,6 +88,28 @@ def demo_parsers(model: BaseChatModel) -> None:
     print(f"AgentHub (PydanticOutputParser): {request!r}")
 
 
+def demo_tools(model: BaseChatModel) -> None:
+    """Show a tool run directly, then a tool requested by the model."""
+    # 1. We call the tools ourselves. No model is involved.
+    print(f"add.invoke -> {add.invoke({'a': 6, 'b': 7})}")
+    print(f"get_order.invoke -> {get_order.invoke({'order_id': 105})}")
+
+    # 2. The model only asks for a tool. It cannot run Python.
+    model_with_tools = model.bind_tools(ALL_TOOLS)
+    question = "What is 6 multiplied by 7?"
+    message = model_with_tools.invoke(question)
+
+    print(f"You: {question}")
+    print(f"Model requested: {message.tool_calls}")
+    print(f"Model text: {message.content!r}")
+
+    # 3. We look up the requested tool and run it.
+    for tool_call in message.tool_calls:
+        requested_tool = TOOLS_BY_NAME[tool_call["name"]]
+        result = requested_tool.invoke(tool_call["args"])
+        print(f"AgentHub executed {tool_call['name']} -> {result}")
+
+
 def main() -> None:
     """Start AgentHub and run the current demos."""
     print("AgentHub started.")
@@ -95,6 +118,7 @@ def main() -> None:
     demo_history(model)
     demo_structured_output(model)
     demo_parsers(model)
+    demo_tools(model)
 
 
 # Only run main() when this file is executed directly
