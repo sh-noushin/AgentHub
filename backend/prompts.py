@@ -1,6 +1,9 @@
-"""Prompt templates for AgentHub."""
+"""Prompt templates and output parsers for AgentHub."""
 
+from langchain_core.output_parsers import PydanticOutputParser, StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+from models import OrderRequest
 
 SYSTEM_PROMPT = (
     "You are AgentHub, a helpful assistant for a small online store. "
@@ -23,3 +26,22 @@ chat_prompt = ChatPromptTemplate.from_messages(
         ("human", "{question}"),
     ]
 )
+
+# Turns an AIMessage into plain text
+str_parser = StrOutputParser()
+
+# Turns the model's JSON text into a validated OrderRequest object
+order_parser = PydanticOutputParser(pydantic_object=OrderRequest)
+
+EXTRACTION_SYSTEM_PROMPT = (
+    "Extract what the customer wants to do with an order.\n"
+    "{format_instructions}"
+)
+
+# The parser explains its own output format, so it is filled in once, here
+extraction_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", EXTRACTION_SYSTEM_PROMPT),
+        ("human", "{sentence}"),
+    ]
+).partial(format_instructions=order_parser.get_format_instructions())

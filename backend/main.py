@@ -4,7 +4,13 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from models import OrderRequest, build_model
-from prompts import chat_prompt
+from prompts import (
+    chat_prompt,
+    extraction_prompt,
+    order_parser,
+    question_prompt,
+    str_parser,
+)
 
 
 def ask_with_history(
@@ -21,6 +27,20 @@ def extract_order_request(model: BaseChatModel, sentence: str) -> OrderRequest:
     """Turn a customer sentence into a validated OrderRequest object."""
     extractor = model.with_structured_output(OrderRequest)
     return extractor.invoke(sentence)
+
+
+def answer_as_text(model: BaseChatModel, question: str) -> str:
+    """Ask a question and get plain text back instead of an AIMessage."""
+    prompt_value = question_prompt.invoke({"question": question})
+    message = model.invoke(prompt_value)
+    return str_parser.invoke(message)
+
+
+def extract_with_parser(model: BaseChatModel, sentence: str) -> OrderRequest:
+    """Extract an OrderRequest by asking for JSON and parsing the text."""
+    prompt_value = extraction_prompt.invoke({"sentence": sentence})
+    message = model.invoke(prompt_value)
+    return order_parser.invoke(message)
 
 
 def demo_history(model: BaseChatModel) -> None:
@@ -55,6 +75,18 @@ def demo_structured_output(model: BaseChatModel) -> None:
         print(f"AgentHub: action={request.action} order_id={request.order_id}")
 
 
+def demo_parsers(model: BaseChatModel) -> None:
+    """Show StrOutputParser and PydanticOutputParser side by side."""
+    question = "What is the capital of France?"
+    print(f"You: {question}")
+    print(f"AgentHub (StrOutputParser): {answer_as_text(model, question)}")
+
+    sentence = "Please cancel order 105."
+    request = extract_with_parser(model, sentence)
+    print(f"You: {sentence}")
+    print(f"AgentHub (PydanticOutputParser): {request!r}")
+
+
 def main() -> None:
     """Start AgentHub and run the current demos."""
     print("AgentHub started.")
@@ -62,6 +94,7 @@ def main() -> None:
     model = build_model()
     demo_history(model)
     demo_structured_output(model)
+    demo_parsers(model)
 
 
 # Only run main() when this file is executed directly

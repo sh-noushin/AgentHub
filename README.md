@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 5: Pydantic structured output — the model returns a typed object, not free text.
+Step 6: `StrOutputParser` and `PydanticOutputParser`.
 
 ## Setup
 
@@ -36,4 +36,8 @@ You: What is the status of order 102?
 AgentHub: action=status order_id=102
 You: Do you sell umbrellas?
 AgentHub: action=other order_id=None
+You: What is the capital of France?
+AgentHub (StrOutputParser): Paris
+You: Please cancel order 105.
+AgentHub (PydanticOutputParser): OrderRequest(action='cancel', order_id=105)
 ```
