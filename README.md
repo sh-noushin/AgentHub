@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 9: `MathToolkit` — grouping tools with `BaseToolkit` and `get_tools()`.
+Step 10: the first LangGraph — `State`, `START`, one node, `END`.
 
 ## Setup
 
@@ -51,4 +51,8 @@ MathToolkit tools: ['add', 'multiply', 'calculate_discount']
 You: Show order 105.
 Model requested: []
 Model text: 'I can only help with calculations.'
+You: What is 6 multiplied by 7?
+Graph state in: {'question': 'What is 6 multiplied by 7?'}
+AgentHub (graph): 42
+Graph state out: ['answer', 'question']
 ```
