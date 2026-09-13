@@ -3,7 +3,8 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
-from agents import final_answer, run_math_agent
+from agents import final_answer, run_math_agent, run_order_agent
+from data import ORDERS
 
 
 def describe(message: BaseMessage) -> str:
@@ -16,12 +17,27 @@ def describe(message: BaseMessage) -> str:
     return f"{message.type:14}: {message.content}"
 
 
-def demo_math_agent(model: BaseChatModel) -> None:
-    """Show the tool-calling loop for one question, step by step."""
-    question = "Calculate a 20 percent discount for 100 euros."
-    messages = run_math_agent(model, question)
-
+def print_trace(question: str, messages: list[BaseMessage], label: str) -> None:
+    """Print one agent run: the question, every message, then the answer."""
     print(f"You: {question}")
     for message in messages:
         print(f"  {describe(message)}")
-    print(f"AgentHub (math agent): {final_answer(messages)}")
+    print(f"AgentHub ({label}): {final_answer(messages)}")
+
+
+def demo_math_agent(model: BaseChatModel) -> None:
+    """Show the tool-calling loop for one question, step by step."""
+    question = "Calculate a 20 percent discount for 100 euros."
+    print_trace(question, run_math_agent(model, question), "math agent")
+
+
+def demo_order_agent(model: BaseChatModel) -> None:
+    """Show the same loop with order tools, including a real change to the data."""
+    question = "What is the status of order 102?"
+    print_trace(question, run_order_agent(model, question), "order agent")
+
+    question = "Cancel order 101."
+    print_trace(question, run_order_agent(model, question), "order agent")
+
+    # The tool really changed the dictionary in data.py
+    print(f"ORDERS[101] is now {ORDERS[101]}")

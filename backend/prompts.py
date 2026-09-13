@@ -32,6 +32,11 @@ MATH_SYSTEM_PROMPT = (
     "never do the arithmetic yourself. Answer in one short sentence."
 )
 
+ORDER_SYSTEM_PROMPT = (
+    "You are the AgentHub order agent. Use the tools to look up or cancel orders. "
+    "Never invent order details. If no order number is given, ask for it."
+)
+
 REPLY_SYSTEM_PROMPT = (
     "You are AgentHub. Reply to the customer in one short, friendly sentence. "
     "Use only the tool result you are given. Never invent order details."

@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 13: the Math Agent — a tool-calling loop over `MathToolkit`.
+Step 14: the Order Agent — the same loop, different tools and system prompt.
 
 ## Setup
 
@@ -77,4 +77,15 @@ You: Calculate a 20 percent discount for 100 euros.
   Tool returns  : 80.0
   ai            : The final price is 80 euros.
 AgentHub (math agent): The final price is 80 euros.
+You: What is the status of order 102?
+  ...
+  AI asks for   : get_order_status({'order_id': 102})
+  Tool returns  : Shipped
+AgentHub (order agent): Order 102 has been shipped.
+You: Cancel order 101.
+  ...
+  AI asks for   : cancel_order({'order_id': 101})
+  Tool returns  : Order 101 was cancelled.
+AgentHub (order agent): Order 101 is cancelled.
+ORDERS[101] is now {'status': 'Cancelled', 'user_id': 'user-1'}
 ```
