@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 12: conditional routing — `add_conditional_edges` picks the branch after `understand`.
+Step 13: the Math Agent — a tool-calling loop over `MathToolkit`.
 
 ## Setup
 
@@ -70,4 +70,11 @@ You: Do you sell umbrellas?
   route      -> not_supported
   result     -> This question is not about an order.
   reply      -> Sorry, I can only help with orders.
+You: Calculate a 20 percent discount for 100 euros.
+  system        : You are the AgentHub math agent. ...
+  human         : Calculate a 20 percent discount for 100 euros.
+  AI asks for   : calculate_discount({'price': 100, 'percent': 20})
+  Tool returns  : 80.0
+  ai            : The final price is 80 euros.
+AgentHub (math agent): The final price is 80 euros.
 ```

@@ -27,6 +27,11 @@ chat_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+MATH_SYSTEM_PROMPT = (
+    "You are the AgentHub math agent. Use the tools for every calculation, "
+    "never do the arithmetic yourself. Answer in one short sentence."
+)
+
 REPLY_SYSTEM_PROMPT = (
     "You are AgentHub. Reply to the customer in one short, friendly sentence. "
     "Use only the tool result you are given. Never invent order details."
