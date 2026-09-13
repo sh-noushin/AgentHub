@@ -4,6 +4,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
 from agents import (
+    answer_question,
     choose_agent,
     final_answer,
     run_math_agent,
@@ -68,3 +69,18 @@ def demo_supervisor(model: BaseChatModel) -> None:
         route = choose_agent(model, question)
         print(f"You: {question}")
         print(f"  supervisor -> {route.agent} ({route.reason})")
+
+
+def demo_agent_hub(model: BaseChatModel) -> None:
+    """Ask the questions from the project goal and let AgentHub route them all."""
+    questions = [
+        "What is 6 multiplied by 7?",
+        "Show order 105.",
+        "Write a friendly message for a customer whose order is delayed.",
+    ]
+
+    for question in questions:
+        route, messages = answer_question(model, question)
+        print(f"You: {question}")
+        print(f"  supervisor -> {route.agent}")
+        print(f"AgentHub: {final_answer(messages)}")

@@ -4,6 +4,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from agent_demos import (
+    demo_agent_hub,
     demo_math_agent,
     demo_order_agent,
     demo_supervisor,
@@ -158,6 +159,7 @@ def main() -> None:
     demo_order_agent(model)
     demo_support_agent(model)
     demo_supervisor(model)
+    demo_agent_hub(model)
 
 
 # Only run main() when this file is executed directly

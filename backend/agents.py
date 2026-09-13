@@ -89,6 +89,23 @@ def choose_agent(model: BaseChatModel, question: str) -> Route:
     return router.invoke(prompt_value)
 
 
+# The Route values from the supervisor are exactly these keys
+AGENT_RUNNERS = {
+    "math_agent": run_math_agent,
+    "order_agent": run_order_agent,
+    "support_agent": run_support_agent,
+}
+
+
+def answer_question(
+    model: BaseChatModel, question: str
+) -> tuple[Route, list[BaseMessage]]:
+    """Let the supervisor pick an agent, then run that agent on the question."""
+    route = choose_agent(model, question)
+    run_chosen_agent = AGENT_RUNNERS[route.agent]
+    return route, run_chosen_agent(model, question)
+
+
 def final_answer(messages: list[BaseMessage]) -> str:
     """Return the text of the last message, which is the agent's answer."""
     return str(messages[-1].content)

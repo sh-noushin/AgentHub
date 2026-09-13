@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 16: the Supervisor — structured-output routing with the `Route` model.
+Step 17: Supervisor connected to the three agents — one question, end to end.
 
 ## Setup
 
@@ -101,4 +101,13 @@ You: Write a friendly delayed-order message.
   supervisor -> support_agent (It asks for a customer message.)
 You: Calculate a 20 percent discount for 100 euros.
   supervisor -> math_agent (It is a discount calculation.)
+You: What is 6 multiplied by 7?
+  supervisor -> math_agent
+AgentHub: 6 multiplied by 7 is 42.
+You: Show order 105.
+  supervisor -> order_agent
+AgentHub: Order 105 is still processing.
+You: Write a friendly message for a customer whose order is delayed.
+  supervisor -> support_agent
+AgentHub: Sorry for the wait, your order is on its way!
 ```
