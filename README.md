@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 14: the Order Agent — the same loop, different tools and system prompt.
+Step 15: the Support Agent — no tools, so no loop; all three agents now share one shape.
 
 ## Setup
 
@@ -88,4 +88,9 @@ You: Cancel order 101.
   Tool returns  : Order 101 was cancelled.
 AgentHub (order agent): Order 101 is cancelled.
 ORDERS[101] is now {'status': 'Cancelled', 'user_id': 'user-1'}
+You: Write a friendly message for a customer whose order is delayed.
+  system        : You are the AgentHub support agent. ...
+  human         : Write a friendly message for a customer whose order is delayed.
+  ai            : Sorry about the wait! Your order is on its way ...
+AgentHub (support agent): Sorry about the wait! Your order is on its way ...
 ```

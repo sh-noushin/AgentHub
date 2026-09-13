@@ -11,7 +11,11 @@ from langchain_core.messages import (
 
 from langchain_core.tools import BaseTool
 
-from prompts import MATH_SYSTEM_PROMPT, ORDER_SYSTEM_PROMPT
+from prompts import (
+    MATH_SYSTEM_PROMPT,
+    ORDER_SYSTEM_PROMPT,
+    SUPPORT_SYSTEM_PROMPT,
+)
 from tools import ORDER_TOOLS, MathToolkit
 
 # Safety net: stop even if the model keeps asking for more tools
@@ -61,6 +65,18 @@ def run_math_agent(model: BaseChatModel, question: str) -> list[BaseMessage]:
 def run_order_agent(model: BaseChatModel, question: str) -> list[BaseMessage]:
     """The order agent: looks up and cancels orders, but cannot do arithmetic."""
     return run_agent(model, ORDER_TOOLS, ORDER_SYSTEM_PROMPT, question)
+
+
+def run_support_agent(model: BaseChatModel, question: str) -> list[BaseMessage]:
+    """The support agent: writes friendly messages and has no tools at all."""
+    messages: list[BaseMessage] = [
+        SystemMessage(SUPPORT_SYSTEM_PROMPT),
+        HumanMessage(question),
+    ]
+
+    # No tools means no loop: one call is always the final answer
+    messages.append(model.invoke(messages))
+    return messages
 
 
 def final_answer(messages: list[BaseMessage]) -> str:

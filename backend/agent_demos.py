@@ -3,7 +3,12 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
-from agents import final_answer, run_math_agent, run_order_agent
+from agents import (
+    final_answer,
+    run_math_agent,
+    run_order_agent,
+    run_support_agent,
+)
 from data import ORDERS
 
 
@@ -41,3 +46,9 @@ def demo_order_agent(model: BaseChatModel) -> None:
 
     # The tool really changed the dictionary in data.py
     print(f"ORDERS[101] is now {ORDERS[101]}")
+
+
+def demo_support_agent(model: BaseChatModel) -> None:
+    """Show an agent that never calls a tool, so its trace has only three messages."""
+    question = "Write a friendly message for a customer whose order is delayed."
+    print_trace(question, run_support_agent(model, question), "support agent")
