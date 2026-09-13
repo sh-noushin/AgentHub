@@ -56,6 +56,22 @@ reply_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+SUPERVISOR_SYSTEM_PROMPT = (
+    "You are the AgentHub supervisor. You never answer the customer yourself, "
+    "you only choose the agent that should answer.\n"
+    "math_agent: addition, multiplication, discounts, any calculation.\n"
+    "order_agent: looking up, checking or cancelling one specific order.\n"
+    "support_agent: apologies, explanations and any friendly message."
+)
+
+# The supervisor reads only the question and returns a Route
+supervisor_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", SUPERVISOR_SYSTEM_PROMPT),
+        ("human", "{question}"),
+    ]
+)
+
 # Turns an AIMessage into plain text
 str_parser = StrOutputParser()
 

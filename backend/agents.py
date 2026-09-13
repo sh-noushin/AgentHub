@@ -11,10 +11,12 @@ from langchain_core.messages import (
 
 from langchain_core.tools import BaseTool
 
+from models import Route
 from prompts import (
     MATH_SYSTEM_PROMPT,
     ORDER_SYSTEM_PROMPT,
     SUPPORT_SYSTEM_PROMPT,
+    supervisor_prompt,
 )
 from tools import ORDER_TOOLS, MathToolkit
 
@@ -77,6 +79,14 @@ def run_support_agent(model: BaseChatModel, question: str) -> list[BaseMessage]:
     # No tools means no loop: one call is always the final answer
     messages.append(model.invoke(messages))
     return messages
+
+
+def choose_agent(model: BaseChatModel, question: str) -> Route:
+    """Ask the model which of the three agents should answer this question."""
+    # with_structured_output guarantees a Route object, never free text
+    router = model.with_structured_output(Route)
+    prompt_value = supervisor_prompt.invoke({"question": question})
+    return router.invoke(prompt_value)
 
 
 def final_answer(messages: list[BaseMessage]) -> str:

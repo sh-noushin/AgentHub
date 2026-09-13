@@ -32,6 +32,18 @@ def build_model() -> ChatGoogleGenerativeAI:
     )
 
 
+class Route(BaseModel):
+    """Which agent the supervisor picked, and why."""
+
+    agent: Literal["math_agent", "order_agent", "support_agent"] = Field(
+        description=(
+            "math_agent for any calculation, order_agent for looking up or "
+            "cancelling one order, support_agent for friendly messages"
+        )
+    )
+    reason: str = Field(description="One short sentence explaining the choice")
+
+
 class OrderRequest(BaseModel):
     """What the customer wants to do with an order."""
 

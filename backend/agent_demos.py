@@ -4,6 +4,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
 from agents import (
+    choose_agent,
     final_answer,
     run_math_agent,
     run_order_agent,
@@ -52,3 +53,18 @@ def demo_support_agent(model: BaseChatModel) -> None:
     """Show an agent that never calls a tool, so its trace has only three messages."""
     question = "Write a friendly message for a customer whose order is delayed."
     print_trace(question, run_support_agent(model, question), "support agent")
+
+
+def demo_supervisor(model: BaseChatModel) -> None:
+    """Show the routing decision only. No agent runs yet."""
+    questions = [
+        "What is 6 multiplied by 7?",
+        "Show order 105.",
+        "Write a friendly delayed-order message.",
+        "Calculate a 20 percent discount for 100 euros.",
+    ]
+
+    for question in questions:
+        route = choose_agent(model, question)
+        print(f"You: {question}")
+        print(f"  supervisor -> {route.agent} ({route.reason})")

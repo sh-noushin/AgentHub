@@ -3,7 +3,12 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
-from agent_demos import demo_math_agent, demo_order_agent, demo_support_agent
+from agent_demos import (
+    demo_math_agent,
+    demo_order_agent,
+    demo_supervisor,
+    demo_support_agent,
+)
 from graph_demos import demo_graph, demo_order_graph
 from models import OrderRequest, build_model
 from prompts import (
@@ -152,6 +157,7 @@ def main() -> None:
     demo_math_agent(model)
     demo_order_agent(model)
     demo_support_agent(model)
+    demo_supervisor(model)
 
 
 # Only run main() when this file is executed directly
