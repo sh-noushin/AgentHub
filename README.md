@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 11: multiple nodes and edges — `understand` -> `handle` -> `reply`.
+Step 12: conditional routing — `add_conditional_edges` picks the branch after `understand`.
 
 ## Setup
 
@@ -57,10 +57,17 @@ AgentHub (graph): 42
 Graph state out: ['answer', 'question']
 You: Show order 105.
   understand -> OrderRequest(action='show', order_id=105)
-  handle     -> Order 105: status=Processing, user_id=user-1
+  route      -> handle
+  result     -> Order 105: status=Processing, user_id=user-1
   reply      -> Order 105 is still being processed.
+You: Please cancel my order.
+  understand -> OrderRequest(action='cancel', order_id=None)
+  route      -> missing_info
+  result     -> No order number was mentioned.
+  reply      -> Could you tell me the order number?
 You: Do you sell umbrellas?
   understand -> OrderRequest(action='other', order_id=None)
-  handle     -> This question is not about an order.
+  route      -> not_supported
+  result     -> This question is not about an order.
   reply      -> Sorry, I can only help with orders.
 ```

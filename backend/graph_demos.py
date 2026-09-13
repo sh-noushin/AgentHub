@@ -2,7 +2,7 @@
 
 from langchain_core.language_models import BaseChatModel
 
-from graph import build_chat_graph, build_order_graph
+from graph import build_chat_graph, build_order_graph, route_action
 
 
 def demo_graph(model: BaseChatModel) -> None:
@@ -20,13 +20,19 @@ def demo_graph(model: BaseChatModel) -> None:
 
 
 def demo_order_graph(model: BaseChatModel) -> None:
-    """Run the three-node graph and show what each node added to the state."""
+    """Run the routed graph and show which branch each question took."""
     graph = build_order_graph(model)
-    questions = ["Show order 105.", "Do you sell umbrellas?"]
+    questions = [
+        "Show order 105.",
+        "Please cancel my order.",
+        "Do you sell umbrellas?",
+    ]
 
     for question in questions:
         final_state = graph.invoke({"question": question})
         print(f"You: {question}")
         print(f"  understand -> {final_state['request']!r}")
-        print(f"  handle     -> {final_state['result']}")
+        # The final state still holds the request, so we can ask for the branch again
+        print(f"  route      -> {route_action(final_state)}")
+        print(f"  result     -> {final_state['result']}")
         print(f"  reply      -> {final_state['answer']}")

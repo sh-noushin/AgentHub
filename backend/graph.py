@@ -46,8 +46,18 @@ def build_chat_graph(model: BaseChatModel) -> CompiledStateGraph:
     return builder.compile()
 
 
+def route_action(state: OrderState) -> str:
+    """Decide which node runs after understand. Returns a branch name only."""
+    request = state["request"]
+    if request.action == "other":
+        return "not_supported"
+    if request.order_id is None:
+        return "missing_info"
+    return "handle"
+
+
 def build_order_graph(model: BaseChatModel) -> CompiledStateGraph:
-    """Build a graph that understands, handles and answers one order question."""
+    """Build a graph that understands, routes, handles and answers one question."""
 
     def understand_node(state: OrderState) -> dict:
         """Turn the free-text question into a validated OrderRequest."""
@@ -57,12 +67,17 @@ def build_order_graph(model: BaseChatModel) -> CompiledStateGraph:
     def handle_node(state: OrderState) -> dict:
         """Run the order tool that matches the extracted action."""
         request = state["request"]
-        order_tool = ACTION_TOOLS.get(request.action)
-        if order_tool is None:
-            return {"result": "This question is not about an order."}
-        if request.order_id is None:
-            return {"result": "No order number was mentioned."}
+        # Routing already guaranteed the action and the order number are usable
+        order_tool = ACTION_TOOLS[request.action]
         return {"result": order_tool.invoke({"order_id": request.order_id})}
+
+    def missing_info_node(_state: OrderState) -> dict:
+        """Handle questions about an order whose number we never received."""
+        return {"result": "No order number was mentioned."}
+
+    def not_supported_node(_state: OrderState) -> dict:
+        """Handle questions that are not about an order at all."""
+        return {"result": "This question is not about an order."}
 
     def reply_node(state: OrderState) -> dict:
         """Let the model phrase the tool result as a sentence for the customer."""
@@ -74,12 +89,27 @@ def build_order_graph(model: BaseChatModel) -> CompiledStateGraph:
     builder = StateGraph(OrderState)
     builder.add_node("understand", understand_node)
     builder.add_node("handle", handle_node)
+    builder.add_node("missing_info", missing_info_node)
+    builder.add_node("not_supported", not_supported_node)
     builder.add_node("reply", reply_node)
 
-    # One straight path: every question visits all three nodes in this order
     builder.add_edge(START, "understand")
-    builder.add_edge("understand", "handle")
+
+    # route_action picks one of these three names, and we go to that node
+    builder.add_conditional_edges(
+        "understand",
+        route_action,
+        {
+            "handle": "handle",
+            "missing_info": "missing_info",
+            "not_supported": "not_supported",
+        },
+    )
+
+    # Whichever branch ran, the answer is always phrased by the same node
     builder.add_edge("handle", "reply")
+    builder.add_edge("missing_info", "reply")
+    builder.add_edge("not_supported", "reply")
     builder.add_edge("reply", END)
 
     return builder.compile()
