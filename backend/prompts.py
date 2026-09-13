@@ -27,6 +27,19 @@ chat_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
+REPLY_SYSTEM_PROMPT = (
+    "You are AgentHub. Reply to the customer in one short, friendly sentence. "
+    "Use only the tool result you are given. Never invent order details."
+)
+
+# Used by the last node of the order graph to phrase the final answer
+reply_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", REPLY_SYSTEM_PROMPT),
+        ("human", "Question: {question}\nTool result: {result}"),
+    ]
+)
+
 # Turns an AIMessage into plain text
 str_parser = StrOutputParser()
 

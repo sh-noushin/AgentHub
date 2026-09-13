@@ -84,6 +84,13 @@ class MathToolkit(BaseToolkit):
 
 ORDER_TOOLS = [get_order, get_order_status, cancel_order]
 
+# Maps an OrderRequest action to the tool that performs it
+ACTION_TOOLS: dict[str, BaseTool] = {
+    "show": get_order,
+    "status": get_order_status,
+    "cancel": cancel_order,
+}
+
 ALL_TOOLS = MathToolkit().get_tools() + ORDER_TOOLS
 
 # Lets us find the right tool when the model asks for one by name

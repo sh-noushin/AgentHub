@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 10: the first LangGraph — `State`, `START`, one node, `END`.
+Step 11: multiple nodes and edges — `understand` -> `handle` -> `reply`.
 
 ## Setup
 
@@ -55,4 +55,12 @@ You: What is 6 multiplied by 7?
 Graph state in: {'question': 'What is 6 multiplied by 7?'}
 AgentHub (graph): 42
 Graph state out: ['answer', 'question']
+You: Show order 105.
+  understand -> OrderRequest(action='show', order_id=105)
+  handle     -> Order 105: status=Processing, user_id=user-1
+  reply      -> Order 105 is still being processed.
+You: Do you sell umbrellas?
+  understand -> OrderRequest(action='other', order_id=None)
+  handle     -> This question is not about an order.
+  reply      -> Sorry, I can only help with orders.
 ```

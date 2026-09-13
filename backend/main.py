@@ -3,7 +3,7 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
-from graph import build_chat_graph
+from graph_demos import demo_graph, demo_order_graph
 from models import OrderRequest, build_model
 from prompts import (
     chat_prompt,
@@ -136,20 +136,6 @@ def demo_toolkit(model: BaseChatModel) -> None:
     print(f"Model text: {message.content!r}")
 
 
-def demo_graph(model: BaseChatModel) -> None:
-    """Run the first graph and show the state before and after."""
-    graph = build_chat_graph(model)
-
-    question = "What is 6 multiplied by 7?"
-    start_state = {"question": question}
-    final_state = graph.invoke(start_state)
-
-    print(f"You: {question}")
-    print(f"Graph state in: {start_state}")
-    print(f"AgentHub (graph): {final_state['answer']}")
-    print(f"Graph state out: {sorted(final_state)}")
-
-
 def main() -> None:
     """Start AgentHub and run the current demos."""
     print("AgentHub started.")
@@ -161,6 +147,7 @@ def main() -> None:
     demo_tools(model)
     demo_toolkit(model)
     demo_graph(model)
+    demo_order_graph(model)
 
 
 # Only run main() when this file is executed directly
