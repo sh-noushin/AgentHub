@@ -7,7 +7,12 @@ from agent_demos import (
     demo_supervisor,
     demo_support_agent,
 )
-from graph_demos import demo_graph, demo_math_agent_graph, demo_order_graph
+from graph_demos import (
+    demo_graph,
+    demo_math_agent_graph,
+    demo_memory,
+    demo_order_graph,
+)
 from langchain_demos import (
     demo_history,
     demo_parsers,
@@ -36,6 +41,7 @@ def main() -> None:
     demo_supervisor(model)
     demo_agent_hub(model)
     demo_math_agent_graph(model)
+    demo_memory(model)
 
 
 # Only run main() when this file is executed directly

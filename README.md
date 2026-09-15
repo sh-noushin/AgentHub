@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 18: `ToolNode` and `tools_condition` — the agent loop as a graph.
+Step 19: checkpoint memory — `InMemorySaver` plus a `thread_id`, so "Cancel it." works.
 
 ## Setup
 
@@ -116,4 +116,13 @@ You: Calculate a 20 percent discount for 100 euros.
   Tool returns  : 80.0
   ai            : The final price is 80 euros.
 AgentHub (math graph): The final price is 80 euros.
+You (customer-1): Show order 105.
+AgentHub: Order 105 is being processed.
+  messages kept in this thread: 4
+You (customer-1): Cancel it.
+AgentHub: Order 105 is cancelled.
+  messages kept in this thread: 8
+You (customer-2): Cancel it.
+AgentHub: Which order number should I cancel?
+  messages kept in this thread: 2
 ```

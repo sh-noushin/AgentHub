@@ -4,13 +4,20 @@ from typing import TypedDict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage
+from langchain_core.tools import BaseTool
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from models import OrderRequest
-from prompts import MATH_SYSTEM_PROMPT, question_prompt, reply_prompt
-from tools import ACTION_TOOLS, MathToolkit
+from prompts import (
+    MATH_SYSTEM_PROMPT,
+    ORDER_SYSTEM_PROMPT,
+    question_prompt,
+    reply_prompt,
+)
+from tools import ACTION_TOOLS, ORDER_TOOLS, MathToolkit
 
 
 class ChatState(TypedDict):
@@ -117,21 +124,25 @@ def build_order_graph(model: BaseChatModel) -> CompiledStateGraph:
     return builder.compile()
 
 
-def build_math_agent_graph(model: BaseChatModel) -> CompiledStateGraph:
-    """The step-13 math agent rebuilt as a graph, with no loop written by us."""
-    math_tools = MathToolkit().get_tools()
-    math_model = model.bind_tools(math_tools)
+def build_agent_graph(
+    model: BaseChatModel,
+    agent_tools: list[BaseTool],
+    system_prompt: str,
+    checkpointer: BaseCheckpointSaver | None = None,
+) -> CompiledStateGraph:
+    """Build one agent loop as a graph. Only the tools and the prompt differ."""
+    model_with_tools = model.bind_tools(agent_tools)
 
     def agent_node(state: MessagesState) -> dict:
         """Call the model with the rules plus the whole conversation so far."""
-        messages = [SystemMessage(MATH_SYSTEM_PROMPT), *state["messages"]]
+        messages = [SystemMessage(system_prompt), *state["messages"]]
         # The list we return is appended to the state, not written over it
-        return {"messages": [math_model.invoke(messages)]}
+        return {"messages": [model_with_tools.invoke(messages)]}
 
     builder = StateGraph(MessagesState)
     builder.add_node("agent", agent_node)
     # ToolNode runs every tool the last AIMessage asked for
-    builder.add_node("tools", ToolNode(math_tools))
+    builder.add_node("tools", ToolNode(agent_tools))
 
     builder.add_edge(START, "agent")
     # tools_condition returns "tools" when tool calls are present, END otherwise
@@ -139,4 +150,17 @@ def build_math_agent_graph(model: BaseChatModel) -> CompiledStateGraph:
     # The loop: after the tools run, the model reads their results
     builder.add_edge("tools", "agent")
 
-    return builder.compile()
+    # With a checkpointer the state is saved after every node, per thread_id
+    return builder.compile(checkpointer=checkpointer)
+
+
+def build_math_agent_graph(model: BaseChatModel) -> CompiledStateGraph:
+    """The math agent as a graph. No checkpointer, so it forgets every run."""
+    return build_agent_graph(model, MathToolkit().get_tools(), MATH_SYSTEM_PROMPT)
+
+
+def build_order_agent_graph(
+    model: BaseChatModel, checkpointer: BaseCheckpointSaver
+) -> CompiledStateGraph:
+    """The order agent as a graph, remembering each thread between questions."""
+    return build_agent_graph(model, ORDER_TOOLS, ORDER_SYSTEM_PROMPT, checkpointer)

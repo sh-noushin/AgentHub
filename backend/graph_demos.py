@@ -3,10 +3,13 @@
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 
+from langgraph.checkpoint.memory import InMemorySaver
+
 from agent_demos import describe
 from graph import (
     build_chat_graph,
     build_math_agent_graph,
+    build_order_agent_graph,
     build_order_graph,
     route_action,
 )
@@ -56,3 +59,22 @@ def demo_math_agent_graph(model: BaseChatModel) -> None:
     for message in final_state["messages"]:
         print(f"  {describe(message)}")
     print(f"AgentHub (math graph): {final_state['messages'][-1].content}")
+
+
+def demo_memory(model: BaseChatModel) -> None:
+    """Two turns in one thread, so the second question can say "it"."""
+    graph = build_order_agent_graph(model, InMemorySaver())
+    config = {"configurable": {"thread_id": "customer-1"}}
+
+    for question in ["Show order 105.", "Cancel it."]:
+        state = graph.invoke({"messages": [HumanMessage(question)]}, config)
+        print(f"You (customer-1): {question}")
+        print(f"AgentHub: {state['messages'][-1].content}")
+        print(f"  messages kept in this thread: {len(state['messages'])}")
+
+    # A different thread_id is a different conversation with an empty history
+    other_config = {"configurable": {"thread_id": "customer-2"}}
+    state = graph.invoke({"messages": [HumanMessage("Cancel it.")]}, other_config)
+    print("You (customer-2): Cancel it.")
+    print(f"AgentHub: {state['messages'][-1].content}")
+    print(f"  messages kept in this thread: {len(state['messages'])}")
