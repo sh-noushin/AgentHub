@@ -4,7 +4,7 @@ A beginner-friendly console AI project built step by step with Python, LangChain
 
 ## Status
 
-Step 17: Supervisor connected to the three agents — one question, end to end.
+Step 18: `ToolNode` and `tools_condition` — the agent loop as a graph.
 
 ## Setup
 
@@ -110,4 +110,10 @@ AgentHub: Order 105 is still processing.
 You: Write a friendly message for a customer whose order is delayed.
   supervisor -> support_agent
 AgentHub: Sorry for the wait, your order is on its way!
+You: Calculate a 20 percent discount for 100 euros.
+  human         : Calculate a 20 percent discount for 100 euros.
+  AI asks for   : calculate_discount({'price': 100, 'percent': 20})
+  Tool returns  : 80.0
+  ai            : The final price is 80 euros.
+AgentHub (math graph): The final price is 80 euros.
 ```

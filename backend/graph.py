@@ -1,14 +1,16 @@
-"""The first AgentHub graph: START -> one node -> END."""
+"""The AgentHub graphs: one node, then routed nodes, then a tool-calling loop."""
 
 from typing import TypedDict
 
 from langchain_core.language_models import BaseChatModel
-from langgraph.graph import END, START, StateGraph
+from langchain_core.messages import SystemMessage
+from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.prebuilt import ToolNode, tools_condition
 
 from models import OrderRequest
-from prompts import question_prompt, reply_prompt
-from tools import ACTION_TOOLS
+from prompts import MATH_SYSTEM_PROMPT, question_prompt, reply_prompt
+from tools import ACTION_TOOLS, MathToolkit
 
 
 class ChatState(TypedDict):
@@ -111,5 +113,30 @@ def build_order_graph(model: BaseChatModel) -> CompiledStateGraph:
     builder.add_edge("missing_info", "reply")
     builder.add_edge("not_supported", "reply")
     builder.add_edge("reply", END)
+
+    return builder.compile()
+
+
+def build_math_agent_graph(model: BaseChatModel) -> CompiledStateGraph:
+    """The step-13 math agent rebuilt as a graph, with no loop written by us."""
+    math_tools = MathToolkit().get_tools()
+    math_model = model.bind_tools(math_tools)
+
+    def agent_node(state: MessagesState) -> dict:
+        """Call the model with the rules plus the whole conversation so far."""
+        messages = [SystemMessage(MATH_SYSTEM_PROMPT), *state["messages"]]
+        # The list we return is appended to the state, not written over it
+        return {"messages": [math_model.invoke(messages)]}
+
+    builder = StateGraph(MessagesState)
+    builder.add_node("agent", agent_node)
+    # ToolNode runs every tool the last AIMessage asked for
+    builder.add_node("tools", ToolNode(math_tools))
+
+    builder.add_edge(START, "agent")
+    # tools_condition returns "tools" when tool calls are present, END otherwise
+    builder.add_conditional_edges("agent", tools_condition)
+    # The loop: after the tools run, the model reads their results
+    builder.add_edge("tools", "agent")
 
     return builder.compile()
